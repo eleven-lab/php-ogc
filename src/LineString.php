@@ -21,33 +21,26 @@ class LineString implements \Countable
      * LineString constructor.
      *
      *
-     * 1) Points array
+     * 1) new LineString(array Points)
+     *
      * You can instantiate a LineString directly with a Points array
      * es. [new Point(lat, lon), new Point(lat, lon)]
      *
-     * 2) string
+     * 2) new LineString(string $points, string $points_separator = ",", string $coordinates_separator = " ")
+     *
      * By default a linestring could be instantiated using a string where points are divided by a "," and coordinates
-     * are divided by " "
+     * are divided by " ". Separators must be different.
      * es. "lat lon, lat lon"
-     *
-     * 3) string, string
-     * Like the second method, but you can specify as second argument the points separator.
-     * es. "lat lon@lat lon@lat lon"
-     *
-     * 4) string, string, string
-     * Like the third method, but you can also specify as third argument the coordinates separator, that must be different
-     * then points separator, obviously.
      *
      */
     public function __construct()
     {
-        $points = [];
         $arguments = func_get_args();
 
         if( sizeof($arguments) == 1 && is_array($arguments[0]) ){
             array_walk($arguments[0], function($p){
                 if( ! $p instanceof Point )
-                    throw new \Exception('A LineString instance should be constructed with Points array only.');
+                    throw new GeoException('A LineString instance should be constructed with Points array only.');
             });
             $points = $arguments[0];
 
@@ -60,9 +53,10 @@ class LineString implements \Countable
         }elseif( sizeof($arguments) == 3 && is_string($arguments[0]) && is_string($arguments[1]) && is_string($arguments[2])){
             if($arguments[0] == $arguments[1])
                 throw new GeoException('Error - Points and coordinates separators cannot be equals');
-            $points = $this->parsePoints($arguments[0], $arguments[1], $arguments[2]);
 
-        }
+            $points = $this->parsePoints($arguments[0], $arguments[1], $arguments[2]);
+        }else
+            throw new GeoException('Cannot instantiate LineString object, wrong arguments');
 
         if( sizeof($points) < 2 )
             throw new GeoException("A LineString instance must be composed by at least 2 points.");
@@ -70,12 +64,11 @@ class LineString implements \Countable
         $this->points = $points;
     }
 
-    private function parsePoints($points, $points_separator = ",", $point_separator = " ")
+    private function parsePoints($points, $points_separator = ",", $coords_separator = " ")
     {
-        return array_map(function($p) use ($point_separator){
-            return new Point($p, [$point_separator]);
+        return array_map(function($p) use ($coords_separator){
+            return new Point($p, [$coords_separator]);
         }, explode($points_separator, trim($points)));
-
     }
 
 
@@ -94,7 +87,7 @@ class LineString implements \Countable
      *
      * @return bool
      */
-    public function circular()
+    public function isCircular()
     {
         return count($this->points) > 3 &&  $this->points[0] == $this->points[ count($this->points) -1 ];
     }
@@ -199,9 +192,9 @@ class LineString implements \Countable
      *
      * es.
      * given the LineString(Point(1,1), Point(2,2)) split by Point(1,1) we obtain
-     * - an array with two Points
+     * - an array with a Point and a LineString
      * 1) Point(1,1)
-     * 2) Point(2,2)
+     * 2) LineString(Point(1,1), Point(2,2))
      *
      * es.
      * given the LineString(Point(1,1), Point(2,2)) split by Point(5,5) we obtain
@@ -212,26 +205,24 @@ class LineString implements \Countable
      * @param $split
      * @return array
      */
-    public function splitByPoint(Point $split){
+    public function split(Point $split)
+    {
 
-        // se il punto di split è all'inizio o alla fine, ritorna la linestring intera
+        // if the point split is the first or the last, we returns the whole linestring
         reset($this->points);
         if( $this->points[0] == $split){
-            echo "uguale al primo punto, niente split\n";
             return [$split, $this];
         }
 
         if ($this->points[count($this->points)-1] == $split){
-            echo "uguale all'ultimo punto, niente split\n";
             return [$this, $split];
         }
 
         $splitted = [];
         $position = array_search($split, $this->points);
 
-        // se il punto non è presente, ritorno la linestring intera
+        // if the split point is not found, we return the whole linestring
         if($position === false){
-            echo "punto di split non trovato\n";
             return [$this, null];
         }
 
@@ -248,7 +239,8 @@ class LineString implements \Countable
      * @param LineString $l2
      * @return array Point
      */
-    public static function diff(LineString $l1, LineString $l2){
+    public static function diff(LineString $l1, LineString $l2)
+    {
         $diffs = array_diff($l1->points, $l2->points);
         foreach($diffs as $diff){
             $pos = array_search($diff, $l1->points);

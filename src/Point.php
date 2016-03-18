@@ -11,13 +11,14 @@ class Point
 
     public $lat;
 	public $lon;
-    public $address;
+    public $address = null;
 
 
     /**
      * Point constructor.
      *
      * There are different ways to intantiate a Point Object:
+     *
      * 1) from array containing a tuple of string|float lat, lon
      *      $point = new Point(["1.123", "2.345"])
      *      $point = new Point([1.123, 2.345])
