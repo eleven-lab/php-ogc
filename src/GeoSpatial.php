@@ -2,7 +2,7 @@
 
 namespace LorenzoGiust\GeoSpatial;
 
-use LorenzoGiust\GeoSpatial\Exceptions\GeoException;
+use LorenzoGiust\GeoSpatial\Exceptions\GeoSpatialException;
 
 abstract class GeoSpatial
 {

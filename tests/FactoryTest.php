@@ -2,7 +2,7 @@
 
 namespace LorenzoGiust\GeoSpatial;
 
-use LorenzoGiust\GeoSpatial\Exceptions\GeoException;
+use LorenzoGiust\GeoSpatial\Exceptions\GeoSpatialException;
 use LorenzoGiust\GeoSpatial\LineString;
 use LorenzoGiust\GeoSpatial\Point;
 use LorenzoGiust\GeoSpatial\Polygon;
@@ -20,7 +20,7 @@ class FactoryTest extends \PHPUnit_Framework_TestCase
 
         foreach($points as $point){
             if( get_class($point) != 'LorenzoGiust\GeoSpatial\Point' || $point->lat != 1.234 || $point->lon != 2.345)
-                throw new GeoException('Error instantiating Points');
+                throw new GeoSpatialException('Error instantiating Points');
         }
     }
 
@@ -40,10 +40,10 @@ class FactoryTest extends \PHPUnit_Framework_TestCase
 
         foreach($linestrings as $ls){
             if( get_class($ls) != 'LorenzoGiust\GeoSpatial\LineString' )
-                throw new GeoException("Error instantianting Linestring");
+                throw new GeoSpatialException("Error instantianting Linestring");
             foreach($ls->points as $point){
                 if( get_class($point) != 'LorenzoGiust\GeoSpatial\Point' )
-                    throw new GeoException("LineString does not contains Points");
+                    throw new GeoSpatialException("LineString does not contains Points");
             }
         }
     }
@@ -119,20 +119,20 @@ class FactoryTest extends \PHPUnit_Framework_TestCase
 
         foreach($polygons as $poly){
             if( get_class($poly) != 'LorenzoGiust\GeoSpatial\Polygon' )
-                throw new GeoException("Error instantianting Polygon");
+                throw new GeoSpatialException("Error instantianting Polygon");
             foreach($poly->linestrings as $ls){
                 if( get_class($ls) != 'LorenzoGiust\GeoSpatial\LineString' )
-                    throw new GeoException("Error instantianting Linestring");
+                    throw new GeoSpatialException("Error instantianting Linestring");
                 foreach($ls->points as $point){
                     if( get_class($point) != 'LorenzoGiust\GeoSpatial\Point' )
-                        throw new GeoException("LineString does not contains Points");
+                        throw new GeoSpatialException("LineString does not contains Points");
                 }
             }
         }
     }
 
     /**
-     * @expectedException \LorenzoGiust\GeoSpatial\Exceptions\GeoException
+     * @expectedException \LorenzoGiust\GeoSpatial\Exceptions\GeoSpatialException
      * @expectedExceptionMessage A LineString instance that compose a Polygon must be circular (min 4 points, first and last equals).
      */
     public function testPolygonFails1()
