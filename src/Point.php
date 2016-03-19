@@ -5,7 +5,7 @@ namespace LorenzoGiust\GeoSpatial;
 
 use LorenzoGiust\GeoSpatial\Exceptions\GeoSpatialException;
 
-class Point extends GeoSpatial
+class Point extends GeoSpatialObject
 {
     protected static $greatCircleproviders = [ 'haversine', 'vincenty' ];
 

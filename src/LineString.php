@@ -9,7 +9,7 @@ use LorenzoGiust\GeoSpatial\Exceptions\GeoSpatialException;
  * Class LineString
  * @package App
  */
-class LineString extends GeoSpatial implements \Countable
+class LineString extends GeoSpatialObject implements \Countable
 {
     /**
      * @var array
