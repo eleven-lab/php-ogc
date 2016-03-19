@@ -2,7 +2,7 @@
 
 namespace LorenzoGiust\GeoSpatial;
 
-use LorenzoGiust\GeoSpatial\Exceptions\GeoException;
+use LorenzoGiust\GeoSpatial\Exceptions\GeoSpatialException;
 
 
 /**
@@ -47,7 +47,7 @@ class LineString extends GeoSpatial implements \Countable
                 }elseif( $p instanceof Point ){
                     return $p;
                 }else
-                    throw new GeoException('A LineString instance should be constructed with Points array only.');
+                    throw new GeoSpatialException('A LineString instance should be constructed with Points array only.');
             }, $arguments[0]);
 
         }elseif( sizeof($arguments) == 1 && is_string($arguments[0]) ){
@@ -58,14 +58,14 @@ class LineString extends GeoSpatial implements \Countable
 
         }elseif( sizeof($arguments) == 3 && is_string($arguments[0]) && is_string($arguments[1]) && is_string($arguments[2])){
             if($arguments[0] == $arguments[1])
-                throw new GeoException('Error - Points and coordinates separators cannot be equals');
+                throw new GeoSpatialException('Error - Points and coordinates separators cannot be equals');
 
             $points = $this->parsePoints($arguments[0], $arguments[1], $arguments[2]);
         }else
-            throw new GeoException('Cannot instantiate LineString object, wrong arguments');
+            throw new GeoSpatialException('Cannot instantiate LineString object, wrong arguments');
 
         if( sizeof($points) < 2 )
-            throw new GeoException("A LineString instance must be composed by at least 2 points.");
+            throw new GeoSpatialException("A LineString instance must be composed by at least 2 points.");
 
         $this->points = $points;
     }

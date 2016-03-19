@@ -3,7 +3,7 @@
 namespace LorenzoGiust\GeoSpatial;
 
 
-use LorenzoGiust\GeoSpatial\Exceptions\GeoException;
+use LorenzoGiust\GeoSpatial\Exceptions\GeoSpatialException;
 
 class Polygon extends GeoSpatial implements \Countable
 {
@@ -27,7 +27,7 @@ class Polygon extends GeoSpatial implements \Countable
         if( sizeof($arguments) >= 1 && is_array($arguments[0]) )
             $arraType = $this->determineArrayType($arguments[0]);
         else
-            throw new GeoException('Wrong parameters for Polygon instantiation.');
+            throw new GeoSpatialException('Wrong parameters for Polygon instantiation.');
 
         //strings
         if( $arraType == 0 ){
@@ -50,7 +50,7 @@ class Polygon extends GeoSpatial implements \Countable
             $this->linestrings = $arguments[0];
 
         }else{
-            throw new GeoException('Wrong parameters for Polygon instantiation.');
+            throw new GeoSpatialException('Wrong parameters for Polygon instantiation.');
         }
 
         if( count($this->linestrings) == 0 )
@@ -85,10 +85,10 @@ class Polygon extends GeoSpatial implements \Countable
 
     private function is_circular_linestring($linestring){
         if( ! $linestring instanceof LineString)
-            throw new GeoException("A Polygon instance must be composed by LineString only.");
+            throw new GeoSpatialException("A Polygon instance must be composed by LineString only.");
 
         if( ! $linestring->isCircular() )
-            throw new GeoException("A LineString instance that compose a Polygon must be circular (min 4 points, first and last equals).");
+            throw new GeoSpatialException("A LineString instance that compose a Polygon must be circular (min 4 points, first and last equals).");
     }
 
     public function count(){

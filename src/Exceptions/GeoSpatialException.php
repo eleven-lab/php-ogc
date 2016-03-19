@@ -10,6 +10,6 @@
 namespace LorenzoGiust\GeoSpatial\Exceptions;
 
 
-class GeoException extends \Exception{
+class GeoSpatialException extends \Exception{
 
 }

@@ -3,7 +3,7 @@
 namespace LorenzoGiust\GeoSpatial;
 
 
-use LorenzoGiust\GeoSpatial\Exceptions\GeoException;
+use LorenzoGiust\GeoSpatial\Exceptions\GeoSpatialException;
 
 class Point extends GeoSpatial
 {
@@ -60,7 +60,7 @@ class Point extends GeoSpatial
             $this->lon = (float) $arguments[1];
 
         }else{
-            throw new GeoException("Point object cannot be instantiated, wrong format.");
+            throw new GeoSpatialException("Point object cannot be instantiated, wrong format.");
         }
     }
 
@@ -68,7 +68,7 @@ class Point extends GeoSpatial
     {
         $p = explode($separator, trim($points));
         if(count($p) != 2)
-            throw new GeoException('Error creating Point from string ' . $points);
+            throw new GeoSpatialException('Error creating Point from string ' . $points);
 
         return [ $p[0], $p[1] ];
     }
@@ -87,7 +87,7 @@ class Point extends GeoSpatial
         $distance = 0;
 
         if( ! in_array($provider, self::$greatCircleproviders))
-            throw new GeoException('Great circle distance provider not found');
+            throw new GeoSpatialException('Great circle distance provider not found');
 
         if( $provider === "haversine" )
             $distance = self::haversineGreatCircleDistance($p1, $p2);
@@ -127,6 +127,31 @@ class Point extends GeoSpatial
         $angle = 2 * asin(sqrt(pow(sin($latDelta / 2), 2) +
                 cos($latFrom) * cos($latTo) * pow(sin($lonDelta / 2), 2)));
         return $angle * $earthRadius;
+    }
+
+
+    /**
+     * TEMPORANEA
+     *
+     * @param $address
+     * @return array|null
+     * @throws GeoSpatialException
+     */
+    public static function georeverse($address)
+    {
+        $api_url = "https://maps.google.com/maps/api/geocode/json?language=it&&address=".urlencode($address);
+        $response = file_get_contents($api_url);
+        if ($json = json_decode($response, true)) {
+
+            if( $json['status'] != 'OK' )
+                throw new GeoSpatialException($json['status']);
+
+            return [
+                $json['results'][0]['geometry']['location']['lat'],
+                $json['results'][0]['geometry']['location']['lng']
+            ];
+        }
+        return null;
     }
 
 }
