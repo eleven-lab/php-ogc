@@ -41,9 +41,6 @@ class LineString implements \Countable
     {
         $arguments = func_get_args();
 
-        echo "create linestring\n";
-        print_r($arguments);
-
         if( sizeof($arguments) == 1 && is_array($arguments[0]) ){
             array_map(function($p){
                 if( sizeof($p) == 2 ){
