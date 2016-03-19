@@ -36,10 +36,15 @@ class FactoryTest extends \PHPUnit_Framework_TestCase
         $linestrings[] = new LineString("1 2, 3 4, 5 6");
         $linestrings[] = new LineString("1 2: 3 4: 5 6", ":");
         $linestrings[] = new LineString("1_2: 3_4: 5_6", ":", "_");
+        $linestrings[] = new LineString([ [1, 2], [2, 3], [3, 4] ]);
 
         foreach($linestrings as $ls){
             if( get_class($ls) != 'LorenzoGiust\GeoSpatial\LineString' )
                 throw new GeoException("Error instantianting Linestring");
+            foreach($ls->points as $point){
+                if( get_class($point) != 'LorenzoGiust\GeoSpatial\Point' )
+                    throw new GeoException("LineString does not contains Points");
+            }
         }
     }
 
@@ -115,6 +120,14 @@ class FactoryTest extends \PHPUnit_Framework_TestCase
         foreach($polygons as $poly){
             if( get_class($poly) != 'LorenzoGiust\GeoSpatial\Polygon' )
                 throw new GeoException("Error instantianting Polygon");
+            foreach($poly->linestrings as $ls){
+                if( get_class($ls) != 'LorenzoGiust\GeoSpatial\LineString' )
+                    throw new GeoException("Error instantianting Linestring");
+                foreach($ls->points as $point){
+                    if( get_class($point) != 'LorenzoGiust\GeoSpatial\Point' )
+                        throw new GeoException("LineString does not contains Points");
+                }
+            }
         }
     }
 

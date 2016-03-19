@@ -11,7 +11,6 @@ use LorenzoGiust\GeoSpatial\Exceptions\GeoException;
  */
 class LineString implements \Countable
 {
-
     /**
      * @var array
      */
@@ -42,13 +41,14 @@ class LineString implements \Countable
         $arguments = func_get_args();
 
         if( sizeof($arguments) == 1 && is_array($arguments[0]) ){
-            array_map(function($p){
+            $points = array_map(function($p){
                 if( sizeof($p) == 2 ){
                     return new Point($p[0], $p[1]);
-                }elseif( ! $p instanceof Point )
+                }elseif( $p instanceof Point ){
+                    return $p;
+                }else
                     throw new GeoException('A LineString instance should be constructed with Points array only.');
             }, $arguments[0]);
-            $points = $arguments[0];
 
         }elseif( sizeof($arguments) == 1 && is_string($arguments[0]) ){
             $points = $this->parsePoints($arguments[0]);
