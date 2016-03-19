@@ -26,7 +26,11 @@ class LineString implements \Countable
      * You can instantiate a LineString directly with a Points array
      * es. [new Point(lat, lon), new Point(lat, lon)]
      *
-     * 2) new LineString(string $points, string $points_separator = ",", string $coordinates_separator = " ")
+     * 2) new LineString(array $points)
+     * from an array of pointarray
+     * es. [[lat, lon], [lat, lon], [lat, lon], ..]
+     *
+     * 3) new LineString(string $points, string $points_separator = ",", string $coordinates_separator = " ")
      *
      * By default a linestring could be instantiated using a string where points are divided by a "," and coordinates
      * are divided by " ". Separators must be different.
@@ -37,11 +41,16 @@ class LineString implements \Countable
     {
         $arguments = func_get_args();
 
+        echo "create linestring\n";
+        print_r($arguments);
+
         if( sizeof($arguments) == 1 && is_array($arguments[0]) ){
-            array_walk($arguments[0], function($p){
-                if( ! $p instanceof Point )
+            array_map(function($p){
+                if( sizeof($p) == 2 ){
+                    return new Point($p[0], $p[1]);
+                }elseif( ! $p instanceof Point )
                     throw new GeoException('A LineString instance should be constructed with Points array only.');
-            });
+            }, $arguments[0]);
             $points = $arguments[0];
 
         }elseif( sizeof($arguments) == 1 && is_string($arguments[0]) ){
