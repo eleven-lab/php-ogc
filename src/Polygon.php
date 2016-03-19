@@ -5,7 +5,7 @@ namespace LorenzoGiust\GeoSpatial;
 
 use LorenzoGiust\GeoSpatial\Exceptions\GeoException;
 
-class Polygon implements \Countable
+class Polygon extends GeoSpatial implements \Countable
 {
 
     public $linestrings = [];
