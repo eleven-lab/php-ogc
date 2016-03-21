@@ -157,7 +157,9 @@ class Point extends GeoSpatialObject
     public static function fromAddress($address)
     {
         $reverse = self::georeverse($address);
-        return new Point($reverse[0], $reverse[1]);
+        $p = new Point($reverse[0], $reverse[1]);
+        $p->address = $address;
+        return $p;
     }
 
     public function __toString()
