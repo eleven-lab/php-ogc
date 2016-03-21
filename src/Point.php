@@ -131,7 +131,7 @@ class Point extends GeoSpatialObject
 
 
     /**
-     * TEMPORANEA
+     * TEMPORANEE
      *
      * @param $address
      * @return array|null
@@ -152,6 +152,12 @@ class Point extends GeoSpatialObject
             ];
         }
         return null;
+    }
+
+    public static function fromAddress($address)
+    {
+        $reverse = self::georeverse($address);
+        return new Point($reverse[0], $reverse[1]);
     }
 
 }
