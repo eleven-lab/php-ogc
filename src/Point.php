@@ -160,4 +160,9 @@ class Point extends GeoSpatialObject
         return new Point($reverse[0], $reverse[1]);
     }
 
+    public function __toString()
+    {
+        return $this->lat . " " . $this->lon;
+    }
+
 }

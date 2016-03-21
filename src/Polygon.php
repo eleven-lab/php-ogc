@@ -94,4 +94,11 @@ class Polygon extends GeoSpatialObject implements \Countable
     public function count(){
         return count($this->linestrings);
     }
+
+    public function __toString()
+    {
+        return implode(",", array_map(function($l){
+            return "(". $l .")";
+        }, $this->linestrings));
+    }
 }

@@ -255,4 +255,11 @@ class LineString extends GeoSpatialObject implements \Countable
         return $diffs;
     }
 
+    public function __toString()
+    {
+        return implode(",", array_map(function($p){
+            return (string)$p;
+        }, $this->points));
+    }
+
 }
