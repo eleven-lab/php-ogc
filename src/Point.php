@@ -162,6 +162,11 @@ class Point extends GeoSpatialObject
         return $p;
     }
 
+    public function toArray()
+    {
+        return array($this->lat, $this->lon);
+    }
+
     public function __toString()
     {
         return $this->lat . " " . $this->lon;

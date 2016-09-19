@@ -95,6 +95,16 @@ class Polygon extends GeoSpatialObject implements \Countable
         return count($this->linestrings);
     }
 
+    public function toArray(){
+
+        $res = array();
+        foreach($this->linestrings as $linestring){
+            $res[] = $linestring->toArray();
+        }
+
+        return $res;
+    }
+
     public function __toString()
     {
         return implode(",", array_map(function($l){

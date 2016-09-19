@@ -43,4 +43,13 @@ class MultiPolygon extends GeoSpatialObject implements \Countable
         return count($this->polygons);
     }
 
+    public function toArray()
+    {
+        $res = array();
+        foreach($this->polygons as $polygon){
+            $res[] = $polygon->toArray();
+        }
+        return $res;
+    }
+
 }

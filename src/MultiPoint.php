@@ -70,6 +70,14 @@ class MultiPoint extends GeoSpatialObject implements \Countable
         }, explode($points_separator, trim($points)));
     }
 
+    public function toArray()
+    {
+        $res = array();
+        foreach($this->points as $point){
+            $res[] = $point->toArray();
+        }
+        return $res;
+    }
 
     /**
      * Implementazione dell'interfaccia countable
