@@ -1,5 +1,5 @@
 {
-  "name": "lorenzoasr/php-geospatial",
+  "name": "elevenlab/php-geospatial",
   "description": "GeoSpatial objects",
   "license": "MIT",
   "keywords": ["google", "geospatial"],
