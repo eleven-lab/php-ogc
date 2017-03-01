@@ -1,16 +1,18 @@
 <?php
 
-namespace LorenzoGiust\GeoSpatial;
+namespace ElevenLab\PHPOGC\DataTypes;
 
-use LorenzoGiust\GeoSpatial\Exceptions\GeoSpatialException;
-
+use ElevenLab\PHPOGC\OGCObject;
+use ElevenLab\PHPOGC\Exceptions\GeoSpatialException;
 
 /**
  * Class LineString
- * @package App
+ * @package php-ogc
  */
-class LineString extends GeoSpatialObject implements \Countable
+class LineString extends OGCObject implements \Countable
 {
+    protected $type = "LINESTRING";
+
     /**
      * @var array
      */
@@ -19,64 +21,81 @@ class LineString extends GeoSpatialObject implements \Countable
     /**
      * LineString constructor.
      *
-     *
-     * 1) new LineString(array Points)
-     *
-     * You can instantiate a LineString directly with a Points array
+     * A LineString must be instantiate with a Points array
      * es. [new Point(lat, lon), new Point(lat, lon)]
      *
-     * 2) new LineString(array $points)
-     * from an array of pointarray
-     * es. [[lat, lon], [lat, lon], [lat, lon], ..]
-     *
-     * 3) new LineString(string $points, string $points_separator = ",", string $coordinates_separator = " ")
-     *
-     * By default a linestring could be instantiated using a string where points are divided by a "," and coordinates
-     * are divided by " ". Separators must be different.
-     * es. "lat lon, lat lon"
-     *
+     * @param array $points
+     * @throws GeoSpatialException
      */
-    public function __construct()
+    public function __construct(array $points)
     {
-        $arguments = func_get_args();
-
-        if( sizeof($arguments) == 1 && is_array($arguments[0]) ){
-            $points = array_map(function($p){
-                if( sizeof($p) == 2 ){
-                    return new Point($p[0], $p[1]);
-                }elseif( $p instanceof Point ){
-                    return $p;
-                }else
-                    throw new GeoSpatialException('A LineString instance should be constructed with Points array only.');
-            }, $arguments[0]);
-
-        }elseif( sizeof($arguments) == 1 && is_string($arguments[0]) ){
-            $points = $this->parsePoints($arguments[0]);
-
-        }elseif( sizeof($arguments) == 2 && is_string($arguments[0]) && is_string($arguments[1])){
-            $points = $this->parsePoints($arguments[0], $arguments[1]);
-
-        }elseif( sizeof($arguments) == 3 && is_string($arguments[0]) && is_string($arguments[1]) && is_string($arguments[2])){
-            if($arguments[0] == $arguments[1])
-                throw new GeoSpatialException('Error - Points and coordinates separators cannot be equals');
-
-            $points = $this->parsePoints($arguments[0], $arguments[1], $arguments[2]);
-        }else
-            throw new GeoSpatialException('Cannot instantiate LineString object, wrong arguments');
-
         if( sizeof($points) < 2 )
             throw new GeoSpatialException("A LineString instance must be composed by at least 2 points.");
 
-        $this->points = $points;
+        $this->points = array_map(function($p){
+            if( ! $p instanceof Point )
+                throw new GeoSpatialException('A LineString instance must be constructed directly with Points array only.');
+            return $p;
+        }, $points);
     }
 
-    private function parsePoints($points, $points_separator = ",", $coords_separator = " ")
+    /**
+     * A Linestring could be constructed with an array of points-array.
+     *
+     * es. [[lat, lon], [lat, lon], [lat, lon], ..]
+     * @param array $points
+     * @return LineString
+     */
+    public static function fromArray(array $points)
     {
-        return array_map(function($p) use ($coords_separator){
-            return new Point($p, [$coords_separator]);
-        }, explode($points_separator, trim($points)));
+        $parsed_points = array_map(function($p){
+            if( !is_array($p) or sizeof($p) != 2)
+                throw new GeoSpatialException('Error: array of array containing lat, lon expected.');
+            return new Point($p[0], $p[1]);
+        }, $points);
+        return new static($parsed_points);
     }
 
+    /**
+     * A Linestring could be instantiated using a string where points are divided by a "," and coordinates
+     * are divided by " ". Separators must be different.
+     * es. "lat lon, lat lon"
+     *
+     * @param $points
+     * @param string $points_separator
+     * @param string $coords_separator
+     * @throws GeoSpatialException
+     * @return LineString
+     */
+    public static function fromString($points, $points_separator = ",", $coords_separator = " ")
+    {
+        if($points_separator == $coords_separator)
+            throw new GeoSpatialException("Error: separators must be different");
+        $parsed_points = array_map(function($p) use ($coords_separator){
+            return Point::fromString($p, $coords_separator);
+        }, explode($points_separator, trim($points)));
+        return new static($parsed_points);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Implement OGB Object interface and various casts utility
+    |--------------------------------------------------------------------------
+    */
+
+    protected function toValueArray()
+    {
+        return array_map(function($point){
+            return $point->toArray();
+        }, $this->points);
+    }
+
+    public function __toString()
+    {
+        return implode(",", array_map(function($p){
+            return (string)$p;
+        }, $this->points));
+    }
 
     /**
      * Implementazione dell'interfaccia countable
@@ -253,25 +272,6 @@ class LineString extends GeoSpatialObject implements \Countable
             echo "Il point $diff è presente solo nella prima LineString, in posizione $pos\n";
         }
         return $diffs;
-    }
-
-    public function toArray()
-    {
-
-        $res = array();
-        foreach($this->points as $point){
-            $res[] = $point->toArray();
-        }
-
-        return $res;
-
-    }
-
-    public function __toString()
-    {
-        return implode(",", array_map(function($p){
-            return (string)$p;
-        }, $this->points));
     }
 
 }

@@ -1,11 +1,14 @@
 <?php
 
-namespace LorenzoGiust\GeoSpatial;
+namespace ElevenLab\PHPOGC;
 
-use LorenzoGiust\GeoSpatial\Exceptions\GeoSpatialException;
-use LorenzoGiust\GeoSpatial\LineString;
-use LorenzoGiust\GeoSpatial\Point;
-use LorenzoGiust\GeoSpatial\Polygon;
+use ElevenLab\PHPOGC\DataTypes\MultiLineString;
+use ElevenLab\PHPOGC\DataTypes\MultiPoint;
+use ElevenLab\PHPOGC\DataTypes\MultiPolygon;
+use ElevenLab\PHPOGC\Exceptions\GeoSpatialException;
+use ElevenLab\PHPOGC\DataTypes\LineString;
+use ElevenLab\PHPOGC\DataTypes\Point;
+use ElevenLab\PHPOGC\DataTypes\Polygon;
 
 class FactoryTest extends \PHPUnit_Framework_TestCase
 {
@@ -13,13 +16,14 @@ class FactoryTest extends \PHPUnit_Framework_TestCase
     {
         $points = [];
         $points[] = new Point(1.234, 2.345);
-        $points[] = new Point([1.234, 2.345]);
-        $points[] = new Point("1.234, 2.345");
-        $points[] = new Point("1.234 2.345", [" "]);
         $points[] = new Point("1.234", "2.345");
+        $points[] = Point::fromArray([1.234, 2.345]);
+        $points[] = Point::fromString("1.234, 2.345");
+        $points[] = Point::fromString("1.234 2.345", " ");
+        $points[] = Point::fromString("1.234#2.345", "#");
 
         foreach($points as $point){
-            if( get_class($point) != 'LorenzoGiust\GeoSpatial\Point' || $point->lat != 1.234 || $point->lon != 2.345)
+            if( get_class($point) != 'ElevenLab\PHPOGC\DataTypes\Point' || $point->lat != 1.234 || $point->lon != 2.345)
                 throw new GeoSpatialException('Error instantiating Points');
         }
     }
@@ -33,19 +37,34 @@ class FactoryTest extends \PHPUnit_Framework_TestCase
         $p3 = new Point(5, 6);
 
         $linestrings[] = new LineString([$p1, $p2, $p3]);
-        $linestrings[] = new LineString("1 2, 3 4, 5 6");
-        $linestrings[] = new LineString("1 2: 3 4: 5 6", ":");
-        $linestrings[] = new LineString("1_2: 3_4: 5_6", ":", "_");
-        $linestrings[] = new LineString([ [1, 2], [2, 3], [3, 4] ]);
+        $linestrings[] = LineString::fromString("1 2, 3 4, 5 6");
+        $linestrings[] = LineString::fromString("1 2: 3 4: 5 6", ":");
+        $linestrings[] = LineString::fromString("1_2: 3_4: 5_6", ":", "_");
+        $linestrings[] = LineString::fromArray([ [1, 2], [2, 3], [3, 4] ]);
 
         foreach($linestrings as $ls){
-            if( get_class($ls) != 'LorenzoGiust\GeoSpatial\LineString' )
+            if( get_class($ls) != 'ElevenLab\PHPOGC\DataTypes\LineString' )
                 throw new GeoSpatialException("Error instantianting Linestring");
             foreach($ls->points as $point){
-                if( get_class($point) != 'LorenzoGiust\GeoSpatial\Point' )
+                if( get_class($point) != 'ElevenLab\PHPOGC\DataTypes\Point' )
                     throw new GeoSpatialException("LineString does not contains Points");
             }
         }
+    }
+
+    public function testMultiPointSuccess()
+    {
+        $multipoints = [];
+
+        $p1 = new Point(1, 2);
+        $p2 = new Point(3, 4);
+        $p3 = new Point(5, 6);
+
+        $multipoints[] = new MultiPoint([$p1, $p2, $p3]);
+        $multipoints[] = MultiPoint::fromString("1 2, 3 4, 5 6");
+        $multipoints[] = MultiPoint::fromString("1 2: 3 4: 5 6", ":");
+        $multipoints[] = MultiPoint::fromString("1_2: 3_4: 5_6", ":", "_");
+        $multipoints[] = MultiPoint::fromArray([ [1, 2], [2, 3], [3, 4] ]);
     }
 
     public function testLineStringCircular()
@@ -112,32 +131,59 @@ class FactoryTest extends \PHPUnit_Framework_TestCase
 
         $polygons[] = new Polygon([$linestring1]);
         $polygons[] = new Polygon([$linestring1, $linestring2]);
-        $polygons[] = new Polygon([$linestring3]);
-        $polygons[] = new Polygon([$linestring3, $linestring3]);
-        $polygons[] = new Polygon([$linestring4, $linestring4], ":");
-        $polygons[] = new Polygon([$linestring5, $linestring5], ":", "_");
+        $polygons[] = Polygon::fromString($linestring3);
+        $polygons[] = Polygon::fromString($linestring3 .";". $linestring3);
+        $polygons[] = Polygon::fromString($linestring4 ."#". $linestring4, "#", ":");
+        $polygons[] = Polygon::fromString($linestring5 ."@". $linestring5, "@", ":", "_");
+
 
         foreach($polygons as $poly){
-            if( get_class($poly) != 'LorenzoGiust\GeoSpatial\Polygon' )
+            if( get_class($poly) != 'ElevenLab\PHPOGC\DataTypes\Polygon' )
                 throw new GeoSpatialException("Error instantianting Polygon");
             foreach($poly->linestrings as $ls){
-                if( get_class($ls) != 'LorenzoGiust\GeoSpatial\LineString' )
+                if( get_class($ls) != 'ElevenLab\PHPOGC\DataTypes\LineString' )
                     throw new GeoSpatialException("Error instantianting Linestring");
                 foreach($ls->points as $point){
-                    if( get_class($point) != 'LorenzoGiust\GeoSpatial\Point' )
+                    if( get_class($point) != 'ElevenLab\PHPOGC\DataTypes\Point' )
                         throw new GeoSpatialException("LineString does not contains Points");
                 }
             }
         }
     }
 
+    public function testMultiPolygonSuccess()
+    {
+        $polygons = [];
+        $p1 = new Point(1,1);
+        $p2 = new Point(2,2);
+        $p3 = new Point(3,3);
+        $p4 = new Point(4,4);
+        $p5 = new Point(5,5);
+
+        $linestring1 = new LineString([$p1, $p2, $p3, $p4, $p5, $p1]);
+        $linestring2 = new LineString([$p1, $p2, $p3, $p1]);
+        $linestring3 = "1 2, 3 4, 5 6, 1 2";
+        $linestring4 = "1 2: 3 4: 5 6: 1 2";
+        $linestring5 = "1_2: 3_4: 5_6: 1_2";
+
+        $polygons[] = new Polygon([$linestring1]);
+        $polygons[] = new Polygon([$linestring1, $linestring2]);
+        $polygons[] = Polygon::fromString($linestring3);
+        $polygons[] = Polygon::fromString($linestring3 .";". $linestring3);
+        $polygons[] = Polygon::fromString($linestring4 ."#". $linestring4, "#", ":");
+        $polygons[] = Polygon::fromString($linestring5 ."@". $linestring5, "@", ":", "_");
+
+        $multi = new MultiPolygon($polygons);
+        if( ! $multi instanceof MultiPolygon )
+            throw new \Exception();
+    }
+
     /**
-     * @expectedException \LorenzoGiust\GeoSpatial\Exceptions\GeoSpatialException
+     * @expectedException \ElevenLab\PHPOGC\Exceptions\GeoSpatialException
      * @expectedExceptionMessage A LineString instance that compose a Polygon must be circular (min 4 points, first and last equals).
      */
     public function testPolygonFails1()
     {
-        $polygons = [];
         $p1 = new Point(1,1);
         $p2 = new Point(2,2);
         $p3 = new Point(3,3);
@@ -148,6 +194,33 @@ class FactoryTest extends \PHPUnit_Framework_TestCase
         $poly = new Polygon([$linestring1]);
     }
 
+
+    public function testFromWKTSuccess()
+    {
+        $point = Point::fromWKT("POINT(0 0)");
+        assert($point instanceof Point);
+        $this->assertEquals("POINT(0 0)", $point->toWKT());
+
+        $linestring = LineString::fromWKT("LINESTRING(0 0,1 1,1 2)");
+        assert($linestring instanceof LineString);
+        $this->assertEquals("LINESTRING(0 0,1 1,1 2)", $linestring->toWKT());
+
+        $multilinestring = MultiLineString::fromWKT("MULTILINESTRING((0 0,4 0,4 4,0 4,0 0),(1 1, 2 1, 2 2, 1 2,1 1))");
+        assert($multilinestring instanceof MultiLineString);
+        $this->assertEquals("MULTILINESTRING((0 0,4 0,4 4,0 4,0 0),(1 1,2 1,2 2,1 2,1 1))", $multilinestring->toWKT());
+
+        $multipoint = MultiPoint::fromWKT("MULTIPOINT(0 0,1 2)");
+        assert($multipoint instanceof MultiPoint);
+        $this->assertEquals("MULTIPOINT(0 0,1 2)", $multipoint->toWKT());
+
+        $polygon = Polygon::fromWKT("POLYGON((0 0,4 0,4 4,0 4,0 0),(1 1,2 1,2 2,1 2,1 1))");
+        assert($polygon instanceof Polygon);
+        $this->assertEquals("POLYGON((0 0,4 0,4 4,0 4,0 0),(1 1,2 1,2 2,1 2,1 1))", $polygon->toWKT());
+
+        $multipolygon = MultiPolygon::fromWKT("MULTIPOLYGON(((0 0,4 0,4 4,0 4,0 0),(1 1,2 1,2 2,1 2,1 1)),((-1 -1,-1 -2,-2 -2,-2 -1,-1 -1)))");
+        assert($multipolygon instanceof MultiPolygon);
+        $this->assertEquals("MULTIPOLYGON(((0 0,4 0,4 4,0 4,0 0),(1 1,2 1,2 2,1 2,1 1)),((-1 -1,-1 -2,-2 -2,-2 -1,-1 -1)))", $multipolygon->toWKT());
+    }
 
 
 

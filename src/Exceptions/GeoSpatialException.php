@@ -1,15 +1,5 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: lorenzo
- * Date: 22/10/15
- * Time: 15.08
- */
 
+namespace ElevenLab\PHPOGC\Exceptions;
 
-namespace LorenzoGiust\GeoSpatial\Exceptions;
-
-
-class GeoSpatialException extends \Exception{
-
-}
+class GeoSpatialException extends \Exception{}
