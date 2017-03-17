@@ -1,10 +1,10 @@
-### Rationale
+# Rationale
 
 This package aims to implement the Open Geo Consortium proposed standard for geo-spatial objects.  
 
-### Installation
+# Installation
 
-##### Using Composer
+## Using Composer
 
 Execute in the project root folder:
 
@@ -12,17 +12,17 @@ Execute in the project root folder:
 $ composer require elevenlab/php-ogc
 ```
 
-##### Manually
+## Manually
 
 TODO
 
-### Quick Documentation
+# Quick Documentation
 
 All objects could be created from and exported as:
 - Well Known Text (WKT) format
 - Well Known Binary (WKB) format
 
-##### Point
+## Point
 
 ```php
 <?php
@@ -36,7 +36,7 @@ $p6 = Point::fromString("1.234#2.345", "#");
 $p7 = Point::fromWKT("POINT(0 0)");
 ```
 
-##### LineString
+## LineString
 
 ```php
 <?php
@@ -50,11 +50,11 @@ $l6 = LineString::fromString('1#2@2#3@3#4@4#5', '@', '#');
 $l7 = LineString::fromWKT("LINESTRING(0 0,1 1,1 2)");
 ```
 
-##### MultiPoint
+## MultiPoint
 
 Identical to LineString.
 
-##### MultiLineString
+## MultiLineString
 
 ```php
 <?php
@@ -69,11 +69,11 @@ $ml6 = MultiLineString::fromString("1^2#2^3# 3^4@ 5^6# 7^8# 9^10", "@", "#", "^"
 $ml7 = MultiLineString::fromWKT("MULTILINESTRING((0 0,4 0,4 4,0 4),(1 1, 2 1, 2 2, 1 2))");
 ```
 
-##### Polygon
+## Polygon
 
 The only difference between Polygon and MultiLineString objects is that the former must be composed by all circular linestrings (first and last point equals).
 
-##### MultiPolygon
+## MultiPolygon
 
 ```php
 <?php
@@ -97,7 +97,7 @@ $mp8 = MultiPolygon::fromWKT("MULTIPOLYGON(((0 0,4 0,4 4,0 4,0 0),(1 1,2 1,2 2,1
 
 ```
 
-##### GeometryCollection
+## GeometryCollection
 
 ```php
 <?php
@@ -112,7 +112,7 @@ $gc = new GeometryCollection([
 
 ```
 
-### ToDo
+# ToDo
 
 - add docs for manual installation
 - add constructor
