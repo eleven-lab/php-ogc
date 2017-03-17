@@ -33,8 +33,8 @@ class Point extends OGCObject
 
     /**
      * A Point could be instantiated from array containing a tuple of string|float lat, lon
-     *      $point = new Point(["1.123", "2.345"])
-     *      $point = new Point([1.123, 2.345])
+     *      $point = Point::fromArray(["1.123", "2.345"])
+     *      $point = Point::fromArray([1.123, 2.345])
      *
      * @param array $points
      * @return Point
@@ -50,8 +50,8 @@ class Point extends OGCObject
 
     /**
      * A Point could be instantiated from a string with a delimiters, by default " " is used
-     *      $point = new Point("1.123 2.345")
-     *      $point = new Point("1.123: 2.345", ":")
+     *      $point = Point::fromString("1.123 2.345")
+     *      $point = Point::fromString("1.123: 2.345", ":")
      *
      * @param $points
      * @param string $separator
