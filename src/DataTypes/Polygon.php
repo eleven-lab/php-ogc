@@ -18,6 +18,7 @@ class Polygon extends OGCObject implements \Countable
      */
     public function __construct(array $linestrings, $circular_check = true)
     {
+        array_walk($linestrings, [$this, "is_linestring"]);
         // check that all array elements are LineString instances, and that all of them are closed (circular)
         if($circular_check) array_walk($linestrings, [$this, "is_circular_linestring"]);
         $this->linestrings = $linestrings;
@@ -87,11 +88,14 @@ class Polygon extends OGCObject implements \Countable
 
     private function is_circular_linestring($linestring)
     {
-        if( ! $linestring instanceof LineString)
-            throw new GeoSpatialException("A Polygon instance must be composed by LineString only.");
-
         if( ! $linestring->isCircular() )
             throw new GeoSpatialException("A LineString instance that compose a Polygon must be circular (min 4 points, first and last equals).");
+    }
+
+    private function is_linestring($linestring)
+    {
+        if( ! $linestring instanceof LineString)
+            throw new GeoSpatialException("A Polygon instance must be composed by LineString only.");
     }
 
     public function count()
