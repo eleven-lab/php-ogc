@@ -1,7 +1,7 @@
 {
   "name": "elevenlab/php-ogc",
   "description": "GeoSpatial objects (Open Geo Consortium compliant)",
-  "license": "MIT",
+  "license": "GNU GPL v3.0",
   "keywords": ["geo", "geospatial", "ogc"],
   "authors": [
     {
