@@ -1,8 +1,8 @@
 {
   "name": "elevenlab/php-ogc",
-  "description": "GeoSpatial objects",
+  "description": "GeoSpatial objects (Open Geo Consortium compliant)",
   "license": "MIT",
-  "keywords": ["google", "geospatial"],
+  "keywords": ["geo", "geospatial", "ogc"],
   "authors": [
     {
       "name": "Lorenzo Giustozzi",
@@ -11,7 +11,7 @@
   ],
   "minimum-stability": "dev",
   "require": {
-      "php": ">=5.4.0",
+    "php": ">=5.4.0",
     "creof/wkb-parser": "^2.3",
     "creof/wkt-parser": "^2.2"
   },
