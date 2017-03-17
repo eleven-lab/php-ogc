@@ -21,6 +21,7 @@ class FactoryTest extends \PHPUnit_Framework_TestCase
         $points[] = Point::fromString("1.234, 2.345");
         $points[] = Point::fromString("1.234 2.345", " ");
         $points[] = Point::fromString("1.234#2.345", "#");
+        $points[] = Point::fromWKT("POINT(1.234 2.345)");
 
         foreach($points as $point){
             if( get_class($point) != 'ElevenLab\PHPOGC\DataTypes\Point' || $point->lat != 1.234 || $point->lon != 2.345)
@@ -41,6 +42,14 @@ class FactoryTest extends \PHPUnit_Framework_TestCase
         $linestrings[] = LineString::fromString("1 2: 3 4: 5 6", ":");
         $linestrings[] = LineString::fromString("1_2: 3_4: 5_6", ":", "_");
         $linestrings[] = LineString::fromArray([ [1, 2], [2, 3], [3, 4] ]);
+
+        $linestrings[] = new LineString([new Point(1, 2), new Point(3, 4), new Point(5, 6)]);
+        $linestrings[] = new LineString([new Point(1, 2), new Point(3, 4), new Point(5, 6), new Point(1, 2)]);
+        $linestrings[] = LineString::fromArray([[1,2], [2,3], [3,4]]);
+        $linestrings[] = LineString::fromString('1 2, 2 3, 3 4, 4 5');
+        $linestrings[] = LineString::fromString('1 2@ 2 3@ 3 4@ 4 5', '@');
+        $linestrings[] = LineString::fromString('1#2@2#3@3#4@4#5', '@', '#');
+        $linestrings[] = LineString::fromWKT("LINESTRING(0 0,1 1,1 2)");
 
         foreach($linestrings as $ls){
             if( get_class($ls) != 'ElevenLab\PHPOGC\DataTypes\LineString' )
@@ -114,6 +123,22 @@ class FactoryTest extends \PHPUnit_Framework_TestCase
 
     }
 
+    public function testMultiLineString()
+    {
+        $ml[] = new MultiLineString([LineString::fromArray([[1,2], [2,3], [3,4]]), LineString::fromArray([[5,6], [7,8], [9,10]])]);
+        $ml[] = MultiLineString::fromArray([[[1,2], [2,3], [3,4]],[[5,6], [7,8], [9,10]]]);
+        $ml[] = MultiLineString::fromString("1 2, 2 3, 3 4; 5 6, 7 8, 9 10");
+        $ml[] = MultiLineString::fromString("1 2, 2 3, 3 4@ 5 6, 7 8, 9 10", "@");
+        $ml[] = MultiLineString::fromString("1 2, 2 3, 3 4@ 5 6, 7 8, 9 10", "@");
+        $ml[] = MultiLineString::fromString("1 2# 2 3# 3 4@ 5 6# 7 8# 9 10", "@", "#");
+        $ml[] = MultiLineString::fromString("1^2#2^3# 3^4@ 5^6# 7^8# 9^10", "@", "#", "^");
+        $ml[] = MultiLineString::fromWKT("MULTILINESTRING((0 0,4 0,4 4,0 4),(1 1, 2 1, 2 2, 1 2))");
+
+        foreach ($ml as $multilinestring) {
+            $this->assertTrue($multilinestring instanceof MultiLineString);
+        }
+    }
+
     public function testPolygonSuccess()
     {
         $polygons = [];
@@ -176,6 +201,27 @@ class FactoryTest extends \PHPUnit_Framework_TestCase
         $multi = new MultiPolygon($polygons);
         if( ! $multi instanceof MultiPolygon )
             throw new \Exception();
+
+        $mp[] = new MultiPolygon([
+            new Polygon([LineString::fromArray([[1,2], [2,3], [3,4], [1,2]]), LineString::fromArray([[5,6], [7,8], [9,10], [5,6]])]),
+            new Polygon([LineString::fromArray([[1,2], [2,3], [3,4], [1,2]]), LineString::fromArray([[5,6], [7,8], [9,10], [5,6]])]),
+            new Polygon([LineString::fromArray([[1,2], [2,3], [3,4], [1,2]]), LineString::fromArray([[5,6], [7,8], [9,10], [5,6]])])
+        ]);
+        $mp[] = MultiPolygon::fromArray([
+            [[[1,2], [2,3], [3,4], [1,2]],[[5,6], [7,8], [9,10], [5,6]]],
+            [[[1,2], [2,3], [3,4], [1,2]],[[5,6], [7,8], [9,10], [5,6]]],
+            [[[1,2], [2,3], [3,4], [1,2]],[[5,6], [7,8], [9,10], [5,6]]]
+        ]);
+        $mp[] = MultiPolygon::fromString("1 2, 2 3, 3 4, 1 2; 5 6, 7 8, 9 10, 5 6|1 2, 2 3, 3 4, 1 2; 5 6, 7 8, 9 10, 5 6|1 2, 2 3, 3 4, 1 2; 5 6, 7 8, 9 10, 5 6");
+        $mp[] = MultiPolygon::fromString("1 2, 2 3, 3 4, 1 2; 5 6, 7 8, 9 10, 5 6%1 2, 2 3, 3 4, 1 2; 5 6, 7 8, 9 10, 5 6%1 2, 2 3, 3 4, 1 2; 5 6, 7 8, 9 10, 5 6", "%");
+        $mp[] = MultiPolygon::fromString("1 2, 2 3, 3 4, 1 2# 5 6, 7 8, 9 10, 5 6%1 2, 2 3, 3 4, 1 2# 5 6, 7 8, 9 10, 5 6%1 2, 2 3, 3 4, 1 2# 5 6, 7 8, 9 10, 5 6", "%", "#");
+        $mp[] = MultiPolygon::fromString("1 2: 2 3: 3 4: 1 2# 5 6: 7 8: 9 10: 5 6%1 2: 2 3: 3 4: 1 2# 5 6: 7 8: 9 10: 5 6%1 2: 2 3: 3 4: 1 2# 5 6: 7 8: 9 10: 5 6", "%", "#", ":");
+        $mp[] = MultiPolygon::fromString("1?2: 2?3: 3?4: 1?2# 5?6: 7?8: 9?10: 5?6%1?2: 2?3: 3?4: 1?2# 5?6: 7?8: 9?10: 5?6%1?2: 2?3: 3?4: 1?2# 5?6: 7?8: 9?10: 5?6", "%", "#", ":", "?");
+        $mp[] = MultiPolygon::fromWKT("MULTIPOLYGON(((0 0,4 0,4 4,0 4,0 0),(1 1,2 1,2 2,1 2,1 1)),((-1 -1,-1 -2,-2 -2,-2 -1,-1 -1)))");
+
+        foreach ($mp as $multipolygon) {
+            $this->assertTrue($multipolygon instanceof MultiPolygon);
+        }
     }
 
     /**
