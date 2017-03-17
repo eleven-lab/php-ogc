@@ -2,7 +2,7 @@
 
 This package aims to implement the Open Geo Consortium proposed standard for geo-spatial objects.  
 
-### INSTALLATION
+### Installation
 
 ##### Using Composer
 
@@ -71,7 +71,7 @@ $ml7 = MultiLineString::fromWKT("MULTILINESTRING((0 0,4 0,4 4,0 4),(1 1, 2 1, 2 
 
 ##### Polygon
 
-The only difference between Polygon and MultiLineString objects is that the former must be composed by all circular linestrings (first and last point equals), but not the latter.
+The only difference between Polygon and MultiLineString objects is that the former must be composed by all circular linestrings (first and last point equals).
 
 ##### MultiPolygon
 
