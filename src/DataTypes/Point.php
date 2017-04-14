@@ -12,7 +12,7 @@ class Point extends OGCObject
     protected static $greatCircleproviders = [ 'haversine', 'vincenty' ];
 
     public $lat;
-	public $lon;
+    public $lon;
     public $address = null;
 
     /**
@@ -68,12 +68,11 @@ class Point extends OGCObject
         return new Point($p[0], $p[1]);
     }
 
-   /*
-   |--------------------------------------------------------------------------
-   | Implement OGB Object interface and various casts utility
-   |--------------------------------------------------------------------------
-   */
-
+    /*
+    |--------------------------------------------------------------------------
+    | Implement OGB Object interface and various casts utility
+    |--------------------------------------------------------------------------
+    */
     protected function toValueArray()
     {
         return [$this->lat, $this->lon];
@@ -93,48 +92,65 @@ class Point extends OGCObject
     | between two points  using one of the providers.
     |
     */
+    /**
+     * Calculate the distance between two points in meter.
+     *
+     * @param Point $p1
+     * @param Point $p2
+     * @param string $provider
+     * @return float
+     * @throws GeoSpatialException
+     */
     public static function distance(Point $p1, Point $p2, $provider = "haversine")
     {
-        $distance = 0;
+        switch ($provider){
+            case "haversine":
+                return self::haversineGreatCircleDistance($p1, $p2);
 
-        if( ! in_array($provider, self::$greatCircleproviders))
-            throw new GeoSpatialException('Great circle distance provider not found');
+            case "vincenty":
+                return self::vincentyGreatCircleDistance($p1, $p2);
 
-        if( $provider === "haversine" )
-            $distance = self::haversineGreatCircleDistance($p1, $p2);
-
-        elseif( $provider === "vicenty" )
-            $distance = self::vincentyGreatCircleDistance($p1, $p2);
-
-        return $distance;
+            default:
+                throw new GeoSpatialException('Great circle distance provider not found, providers available: ' . implode(", ", self::$greatCircleproviders));
+        }
     }
 
-    private static function vincentyGreatCircleDistance(Point $from, Point $to, $earthRadius = 6371000){
+    /**
+     * @param Point $from
+     * @param Point $to
+     * @param int $earthRadius
+     * @return float
+     */
+    private static function vincentyGreatCircleDistance(Point $from, Point $to, $earthRadius = 6371000)
+    {
         // convert from degrees to radians
         $latFrom = deg2rad($from->lat);
         $lonFrom = deg2rad($from->lon);
         $latTo = deg2rad($to->lat);
         $lonTo = deg2rad($to->lon);
-
         $lonDelta = $lonTo - $lonFrom;
         $a = pow(cos($latTo) * sin($lonDelta), 2) +
             pow(cos($latFrom) * sin($latTo) - sin($latFrom) * cos($latTo) * cos($lonDelta), 2);
         $b = sin($latFrom) * sin($latTo) + cos($latFrom) * cos($latTo) * cos($lonDelta);
-
         $angle = atan2(sqrt($a), $b);
         return $angle * $earthRadius;
     }
 
-    private static function haversineGreatCircleDistance(Point $from, Point $to, $earthRadius = 6371000){
+    /**
+     * @param Point $from
+     * @param Point $to
+     * @param int $earthRadius
+     * @return float
+     */
+    private static function haversineGreatCircleDistance(Point $from, Point $to, $earthRadius = 6371000)
+    {
         // convert from degrees to radians
         $latFrom = deg2rad($from->lat);
         $lonFrom = deg2rad($from->lon);
         $latTo = deg2rad($to->lat);
         $lonTo = deg2rad($to->lon);
-
         $latDelta = $latTo - $latFrom;
         $lonDelta = $lonTo - $lonFrom;
-
         $angle = 2 * asin(sqrt(pow(sin($latDelta / 2), 2) +
                 cos($latFrom) * cos($latTo) * pow(sin($lonDelta / 2), 2)));
         return $angle * $earthRadius;
